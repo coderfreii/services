@@ -1,4 +1,4 @@
-import type * as vscode from '@volar/language-service';
+import type * as vscode from 'vscode-languageserver-protocol';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { URI } from 'vscode-uri';

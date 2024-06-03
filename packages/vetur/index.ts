@@ -1,4 +1,4 @@
-import type { LanguageServicePlugin, LanguageServicePluginInstance, SemanticToken } from '@volar/language-service';
+import type { LanguageServicePlugin, LanguageServicePluginInstance, SemanticToken } from '@volar/language-service/lib/types';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vls from 'vls';

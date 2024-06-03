@@ -1,7 +1,9 @@
-import type { FormattingOptions, LanguageServiceContext } from '@volar/language-service';
+// import type { FormattingOptions, LanguageServiceContext } from '@volar/language-service';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getConfigTitle } from '../shared';
+import type { LanguageServiceContext } from '@volar/language-service/lib/types';
+import type { FormattingOptions } from 'vscode-languageserver-protocol';
 
 export async function getFormatCodeSettings(
 	ctx: LanguageServiceContext,

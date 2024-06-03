@@ -1,5 +1,7 @@
-import type { InlayHint, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+// import type { InlayHint, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service/lib/types';
 import type { Provide } from 'volar-service-typescript';
+import type { InlayHint } from 'vscode-languageserver-protocol';
 import { URI } from 'vscode-uri';
 
 export function create(ts: typeof import('typescript')): LanguageServicePlugin {

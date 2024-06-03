@@ -1,8 +1,14 @@
-import type { Disposable, DocumentSelector, FormattingOptions, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type {  ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service/lib/types';
 import * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
 
+import {
+	DocumentSelector 
+} from 'vscode-languageclient'
+
+
+import { 	Disposable,  } from 'vscode-jsonrpc'
 
 export interface Provide {
 	'html/htmlDocument': (document: TextDocument) => html.HTMLDocument | undefined;
@@ -96,7 +102,7 @@ export function create({
 	isAutoCreateQuotesEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 	isAutoClosingTagsEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 	getDocumentContext?(context: LanguageServiceContext): html.DocumentContext;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: LanguageServiceContext): ProviderResult<html.HTMLFormatConfiguration>;
+	getFormattingOptions?(document: TextDocument, options: html.FormattingOptions, context: LanguageServiceContext): ProviderResult<html.HTMLFormatConfiguration>;
 	getCompletionConfiguration?(document: TextDocument, context: LanguageServiceContext): ProviderResult<html.CompletionConfiguration | undefined>;
 	getHoverSettings?(document: TextDocument, context: LanguageServiceContext): ProviderResult<html.HoverSettings | undefined>;
 	getCustomData?(context: LanguageServiceContext): ProviderResult<html.IHTMLDataProvider[]>;

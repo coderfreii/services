@@ -1,4 +1,4 @@
-import type * as vscode from '@volar/language-service';
+
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
@@ -8,9 +8,10 @@ import type { SharedContext } from './types';
 import type { Data, FixAllData, RefactorData } from './codeAction';
 import { convertFileTextChanges } from '../utils/lspConverters';
 import { URI } from 'vscode-uri';
+import type { CodeAction, FormattingOptions } from 'vscode-languageserver-protocol';
 
 export function register(ctx: SharedContext) {
-	return async (codeAction: vscode.CodeAction, formattingOptions: vscode.FormattingOptions | undefined) => {
+	return async (codeAction: CodeAction, formattingOptions: FormattingOptions | undefined) => {
 
 		const data: Data = codeAction.data;
 		const document = ctx.getTextDocument(URI.parse(data.uri))!;
@@ -35,7 +36,7 @@ export function register(ctx: SharedContext) {
 
 export function resolveFixAllCodeAction(
 	ctx: SharedContext,
-	codeAction: vscode.CodeAction,
+	codeAction: CodeAction,
 	data: FixAllData,
 	formatOptions: ts.FormatCodeSettings,
 	preferences: ts.UserPreferences,
@@ -47,7 +48,7 @@ export function resolveFixAllCodeAction(
 
 export function resolveRefactorCodeAction(
 	ctx: SharedContext,
-	codeAction: vscode.CodeAction,
+	codeAction: CodeAction,
 	data: RefactorData,
 	document: TextDocument,
 	formatOptions: ts.FormatCodeSettings,
@@ -68,7 +69,7 @@ export function resolveRefactorCodeAction(
 
 export function resolveOrganizeImportsCodeAction(
 	ctx: SharedContext,
-	codeAction: vscode.CodeAction,
+	codeAction: CodeAction,
 	data: Data,
 	formatOptions: ts.FormatCodeSettings,
 	preferences: ts.UserPreferences,

@@ -1,6 +1,7 @@
 import * as prettyhtml from '@starptech/prettyhtml';
-import type { DocumentSelector, FormattingOptions, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
-
+import type { ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service/lib/types';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
+import type { DocumentSelector, FormattingOptions,  } from 'vscode-languageclient';
 export type PrettyhtmlFormattingOptions = Parameters<typeof prettyhtml>[1];
 
 export function create({

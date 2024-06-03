@@ -5,7 +5,7 @@
 
 /* Based on @sergeche's work in his emmet plugin */
 
-import type { TextDocument } from '@volar/language-service';
+import type { TextDocument } from 'vscode-languageserver-protocol';
 
 /**
  * A stream reader for VSCode's `TextDocument`

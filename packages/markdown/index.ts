@@ -1,10 +1,22 @@
-import { SourceScript, forEachEmbeddedCode, type DocumentSelector, type FileChangeType, type FileType, type LanguageServicePlugin, type LanguageServicePluginInstance, type LocationLink, type ProviderResult, type LanguageServiceContext } from '@volar/language-service';
+// import { forEachEmbeddedCode, type DocumentSelector, type FileChangeType, type FileType, type LanguageServicePlugin, type LanguageServicePluginInstance, type LocationLink, type ProviderResult, type LanguageServiceContext } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, ITextDocument, IWorkspace } from 'vscode-markdown-languageservice';
 import { LogLevel, createLanguageService, githubSlugifier } from 'vscode-markdown-languageservice';
 import { URI, Utils } from 'vscode-uri';
 import MarkdownIt = require('markdown-it');
+import type { SourceScript } from '@volar/language-core/lib/types';
+
+import {
+	DocumentSelector ,
+	FileChangeType,
+	LocationLink
+} from 'vscode-languageclient'
+
+import type {FileType,  ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service/lib/types';
+import { forEachEmbeddedCode } from '@volar/language-core';
+
+
 
 export interface Provide {
 	'markdown/languageService': () => IMdLanguageService;

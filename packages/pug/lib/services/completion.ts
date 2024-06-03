@@ -1,7 +1,9 @@
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-html-languageservice';
 import type { PugDocument } from '../pugDocument';
-import { LanguageServiceContext, transformCompletionList } from '@volar/language-service';
+import type { LanguageServiceContext } from '@volar/language-service/lib/types';
+import { transformCompletionList } from '@volar/language-service/lib/utils/transform';
+
 
 export function register(htmlLs: html.LanguageService) {
 

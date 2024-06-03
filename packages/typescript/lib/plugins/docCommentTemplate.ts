@@ -1,15 +1,16 @@
-import type * as vscode from '@volar/language-service';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
+import type { Range, TextDocument } from 'vscode-languageserver-textdocument';
 import * as nls from 'vscode-nls';
 import { isTsDocument } from '../shared';
 import { getLineText } from '../utils/lspConverters';
 import { getLanguageServiceByDocument } from './syntactic';
+import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service/lib/types';
+import type { CompletionItem, CompletionItemKind, InsertTextFormat, Position } from 'vscode-languageserver-protocol';
 
 const localize = nls.loadMessageBundle(); // TODO: not working
 
 const defaultJsDoc = `/**\n * $0\n */`;
 
-export function create(ts: typeof import('typescript')): vscode.LanguageServicePlugin {
+export function create(ts: typeof import('typescript')): LanguageServicePlugin {
 	return {
 		name: 'typescript-doc-comment-template',
 		capabilities: {
@@ -17,7 +18,7 @@ export function create(ts: typeof import('typescript')): vscode.LanguageServiceP
 				triggerCharacters: ['*'],
 			},
 		},
-		create(): vscode.LanguageServicePluginInstance {
+		create(): LanguageServicePluginInstance {
 
 			return {
 
@@ -61,20 +62,20 @@ export function create(ts: typeof import('typescript')): vscode.LanguageServiceP
 	};
 }
 
-function createCompletionItem(document: TextDocument, position: vscode.Position, insertText: string) {
+function createCompletionItem(document: TextDocument, position: Position, insertText: string) {
 
-	const item: vscode.CompletionItem = { label: '/** */' };
-	item.kind = 1 satisfies typeof vscode.CompletionItemKind.Text;
+	const item: CompletionItem = { label: '/** */' };
+	item.kind = 1 satisfies typeof CompletionItemKind.Text;
 	item.detail = localize('typescript.jsDocCompletionItem.documentation', 'JSDoc comment');
 	item.sortText = '\0';
-	item.insertTextFormat = 2 satisfies typeof vscode.InsertTextFormat.Snippet;
+	item.insertTextFormat = 2 satisfies typeof InsertTextFormat.Snippet;
 
 	const line = getLineText(document, position.line);
 	const prefix = line.slice(0, position.character).match(/\/\**\s*$/);
 	const suffix = line.slice(position.character).match(/^\s*\**\//);
-	const start: vscode.Position = { line: position.line, character: position.character + (prefix ? -prefix[0].length : 0) };
-	const end: vscode.Position = { line: position.line, character: position.character + (suffix ? suffix[0].length : 0) };
-	const range: vscode.Range = { start, end };
+	const start: Position = { line: position.line, character: position.character + (prefix ? -prefix[0].length : 0) };
+	const end: Position = { line: position.line, character: position.character + (suffix ? suffix[0].length : 0) };
+	const range: Range = { start, end };
 	item.textEdit = { range, newText: insertText };
 
 	return item;
@@ -82,7 +83,7 @@ function createCompletionItem(document: TextDocument, position: vscode.Position,
 
 function isPotentiallyValidDocCompletionPosition(
 	document: TextDocument,
-	position: vscode.Position
+	position: Position
 ): boolean {
 	// Only show the JSdoc completion when the everything before the cursor is whitespace
 	// or could be the opening of a comment

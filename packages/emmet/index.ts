@@ -1,4 +1,6 @@
-import type * as vscode from '@volar/language-service';
+import { type LanguageServicePlugin, type LanguageServicePluginInstance } from '@volar/language-service/lib/types';
+import { Position,CompletionContext,CompletionTriggerKind, type CompletionList, type Range, } from 'vscode-languageserver-protocol'
+import { type TextDocument } from 'vscode-languageserver-textdocument'
 import type * as helper from '@vscode/emmet-helper';
 import type { Node, Stylesheet } from 'EmmetFlatNode';
 import { URI } from 'vscode-uri';
@@ -10,7 +12,7 @@ export function create({
 	mappedLanguages = {},
 }: {
 	mappedLanguages?: Record<string, string>;
-} = {}): vscode.LanguageServicePlugin {
+} = {}): LanguageServicePlugin {
 	return {
 		name: 'emmet',
 		capabilities: {
@@ -19,7 +21,7 @@ export function create({
 				triggerCharacters: '>+^*()#.[]$@-{}'.split(''),
 			},
 		},
-		create(context, languageService): vscode.LanguageServicePluginInstance {
+		create(context, languageService): LanguageServicePluginInstance {
 
 			let lastCompletionType: string | undefined;
 
@@ -54,7 +56,7 @@ export function create({
 				},
 			};
 
-			async function provideCompletionItemsInternal(document: vscode.TextDocument, position: vscode.Position, completionContext: vscode.CompletionContext) {
+			async function provideCompletionItemsInternal(document: TextDocument, position: Position, completionContext: CompletionContext) {
 
 				const emmetConfig = await context.env.getConfiguration?.<helper.VSCodeEmmetConfig>('emmet') ?? {};
 				const excludedLanguages = emmetConfig['excludeLanguages'] ?? [];
@@ -77,7 +79,7 @@ export function create({
 				let currentNode: Node | undefined;
 
 				// Don't show completions if there's a comment at the beginning of the line
-				const lineRange: vscode.Range = {
+				const lineRange: Range = {
 					start: { line: position.line, character: 0 },
 					end: position,
 				};
@@ -87,7 +89,7 @@ export function create({
 
 				const helper = getEmmetHelper();
 				if (syntax === 'html') {
-					if (completionContext.triggerKind === 3 satisfies typeof vscode.CompletionTriggerKind.TriggerForIncompleteCompletions) {
+					if (completionContext.triggerKind === 3 satisfies typeof CompletionTriggerKind.TriggerForIncompleteCompletions) {
 						switch (lastCompletionType) {
 							case 'html':
 								validateLocation = false;
@@ -146,7 +148,7 @@ export function create({
 				}
 
 				const offset = document.offsetAt(position);
-				if (isStyleSheet(document.languageId) && completionContext.triggerKind !== 3 satisfies typeof vscode.CompletionTriggerKind.TriggerForIncompleteCompletions) {
+				if (isStyleSheet(document.languageId) && completionContext.triggerKind !== 3 satisfies typeof CompletionTriggerKind.TriggerForIncompleteCompletions) {
 					validateLocation = true;
 					const usePartialParsing = await context.env.getConfiguration<boolean>?.('emmet.optimizeStylesheetParsing') === true;
 					rootNode = usePartialParsing && document.lineCount > 1000 ? parsePartialStylesheet(document, position) : <Stylesheet>getRootNode(document, true);
@@ -159,7 +161,7 @@ export function create({
 				// Fix for https://github.com/microsoft/vscode/issues/107578
 				// Validate location if syntax is of styleSheet type to ensure that location is valid for emmet abbreviation.
 				// For an html document containing a <style> node, compute the embeddedCssNode and fetch the flattened node as currentNode.
-				if (!isStyleSheet(document.languageId) && isStyleSheet(syntax) && completionContext.triggerKind !== 3 satisfies typeof vscode.CompletionTriggerKind.TriggerForIncompleteCompletions) {
+				if (!isStyleSheet(document.languageId) && isStyleSheet(syntax) && completionContext.triggerKind !== 3 satisfies typeof CompletionTriggerKind.TriggerForIncompleteCompletions) {
 					validateLocation = true;
 					rootNode = getRootNode(document, true);
 					if (!rootNode) {
@@ -194,7 +196,7 @@ export function create({
 					}
 				}
 
-				return isNoisePromise.then(async (isNoise): Promise<vscode.CompletionList | undefined> => {
+				return isNoisePromise.then(async (isNoise): Promise<CompletionList | undefined> => {
 					if (isNoise) {
 						return undefined;
 					}

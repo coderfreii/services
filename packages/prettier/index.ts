@@ -1,6 +1,7 @@
-import type { DocumentSelector, FormattingOptions, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
+import type { ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service/lib/types';
 import type { Options } from 'prettier';
 import { URI } from 'vscode-uri';
+import { TextDocument ,DocumentSelector, FormattingOptions} from 'vscode-languageclient'
 
 export function create(
 	/**

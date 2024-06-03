@@ -1,6 +1,7 @@
-import type * as vscode from '@volar/language-service';
+import type * as vscode from '@volar/language-service/lib/types';
 import * as nls from 'vscode-nls';
 import { isTsDocument } from '../shared';
+import type { CompletionItem, InsertTextFormat, Range } from 'vscode-languageserver-protocol';
 
 const localize = nls.loadMessageBundle(); // TODO: not working
 
@@ -60,10 +61,10 @@ export function create(): vscode.LanguageServicePlugin {
 
 						const items = directives.map(directive => {
 
-							const item: vscode.CompletionItem = { label: directive.value };
-							item.insertTextFormat = 2 satisfies typeof vscode.InsertTextFormat.Snippet;
+							const item: CompletionItem = { label: directive.value };
+							item.insertTextFormat = 2 satisfies typeof InsertTextFormat.Snippet;
 							item.detail = directive.description;
-							const range: vscode.Range = {
+							const range: Range = {
 								start: {
 									line: position.line,
 									character: Math.max(0, position.character - (match[1] ? match[1].length : 0)),

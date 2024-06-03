@@ -1,11 +1,12 @@
-import type * as vscode from '@volar/language-service';
+
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { safeCall } from '../shared';
 import type { SharedContext } from './types';
 import type { URI } from 'vscode-uri';
+import type { Range, SemanticTokensLegend } from 'vscode-languageserver-protocol';
 
 export function register(ts: typeof import('typescript'), ctx: SharedContext) {
-	return (uri: URI, document: TextDocument, range: vscode.Range, legend: vscode.SemanticTokensLegend) => {
+	return (uri: URI, document: TextDocument, range: Range, legend: SemanticTokensLegend) => {
 		const fileName = ctx.uriToFileName(uri);
 		const start = range ? document.offsetAt(range.start) : 0;
 		const length = range ? (document.offsetAt(range.end) - start) : document.getText().length;

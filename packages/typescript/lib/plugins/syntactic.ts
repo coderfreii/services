@@ -3,7 +3,7 @@ import type {
 	LanguageServiceContext,
 	LanguageServicePlugin,
 	LanguageServicePluginInstance
-} from '@volar/language-service';
+} from '@volar/language-service/lib/types';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getConfigTitle, isTsDocument, safeCall } from '../shared';

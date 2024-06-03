@@ -7,7 +7,7 @@
  * Helpers for converting FROM vscode types TO ts types
  */
 
-import type { SymbolKind as _SymbolKind } from '@volar/language-service';
+import type { SymbolKind as _SymbolKind } from 'vscode-languageserver-types';
 import * as PConst from '../protocol.const';
 import type * as ts from 'typescript';
 

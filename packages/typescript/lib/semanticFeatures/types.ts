@@ -1,4 +1,4 @@
-import type { LanguageServiceContext } from '@volar/language-service';
+import type { LanguageServiceContext } from '@volar/language-service/lib/types';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { URI } from 'vscode-uri';

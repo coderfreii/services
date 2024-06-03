@@ -1,9 +1,13 @@
-import type { Diagnostic, DiagnosticSeverity, Disposable, DocumentSelector, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
-import { transformDocumentSymbol } from '@volar/language-service';
+import type {  ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance,  } from '@volar/language-service/lib/types';
+import {DocumentSelector} from 'vscode-languageclient'
 import { create as createHtmlService } from 'volar-service-html';
 import type * as html from 'vscode-html-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as pug from './lib/languageService';
+import { transformDocumentSymbol } from '@volar/language-service/lib/utils/transform';
+import {DiagnosticSeverity, } from 'vscode-languageserver-protocol'
+
+import { Disposable } from 'vscode-jsonrpc';
 
 export interface Provide {
 	'pug/pugDocument': (document: TextDocument) => pug.PugDocument | undefined;
@@ -61,7 +65,7 @@ export function create({
 				},
 
 				provideDiagnostics(document) {
-					return worker(document, (pugDocument): Diagnostic[] => {
+					return worker(document, (pugDocument): html.Diagnostic[] => {
 
 						if (pugDocument.error) {
 

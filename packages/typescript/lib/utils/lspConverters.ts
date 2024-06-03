@@ -1,4 +1,3 @@
-import type * as vscode from '@volar/language-service';
 import * as path from 'path-browserify';
 import * as semver from 'semver';
 import type * as ts from 'typescript';
@@ -10,6 +9,7 @@ import { notEmpty } from '../shared';
 import { parseKindModifier } from '../utils/modifiers';
 import * as previewer from '../utils/previewer';
 import * as typeConverters from '../utils/typeConverters';
+import type { CallHierarchyIncomingCall, CallHierarchyItem, CallHierarchyOutgoingCall, CompletionItem, CompletionItemKind, CompletionItemTag, CompletionList, Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity, DiagnosticTag, DocumentHighlight, DocumentHighlightKind, DocumentSymbol, FoldingRange, FoldingRangeKind, Hover, InlayHint, InlayHintKind, InsertTextFormat, Location, LocationLink, MarkupContent, MarkupKind, Position, Range, SelectionRange, SymbolKind, SymbolTag, TextEdit, WorkspaceEdit, WorkspaceSymbol } from 'vscode-languageserver-protocol';
 
 // diagnostics
 
@@ -18,7 +18,7 @@ export function convertDiagnostic(
 	document: TextDocument,
 	fileNameToUri: (fileName: string) => URI,
 	getTextDocument: (uri: URI) => TextDocument | undefined,
-): vscode.Diagnostic | undefined {
+): Diagnostic | undefined {
 
 	if (diag.start === undefined) {
 		return;
@@ -27,7 +27,7 @@ export function convertDiagnostic(
 		return;
 	}
 
-	const diagnostic: vscode.Diagnostic = {
+	const diagnostic: Diagnostic = {
 		range: {
 			start: document.positionAt(diag.start),
 			end: document.positionAt(diag.start + diag.length),
@@ -47,13 +47,13 @@ export function convertDiagnostic(
 		if (diagnostic.tags === undefined) {
 			diagnostic.tags = [];
 		}
-		diagnostic.tags.push(1 satisfies typeof vscode.DiagnosticTag.Unnecessary);
+		diagnostic.tags.push(1 satisfies typeof DiagnosticTag.Unnecessary);
 	}
 	if (diag.reportsDeprecated) {
 		if (diagnostic.tags === undefined) {
 			diagnostic.tags = [];
 		}
-		diagnostic.tags.push(2 satisfies typeof vscode.DiagnosticTag.Deprecated);
+		diagnostic.tags.push(2 satisfies typeof DiagnosticTag.Deprecated);
 	}
 
 	return diagnostic;
@@ -63,7 +63,7 @@ function convertDiagnosticRelatedInformation(
 	diag: ts.Diagnostic,
 	fileNameToUri: (fileName: string) => URI,
 	getTextDocument: (uri: URI) => TextDocument | undefined,
-): vscode.DiagnosticRelatedInformation | undefined {
+): DiagnosticRelatedInformation | undefined {
 
 	if (diag.start === undefined) {
 		return;
@@ -80,7 +80,7 @@ function convertDiagnosticRelatedInformation(
 		return;
 	}
 
-	const diagnostic: vscode.DiagnosticRelatedInformation = {
+	const diagnostic: DiagnosticRelatedInformation = {
 		location: {
 			uri: document.uri,
 			range: {
@@ -94,14 +94,14 @@ function convertDiagnosticRelatedInformation(
 	return diagnostic;
 }
 
-function convertDiagnosticCategory(input: ts.DiagnosticCategory): vscode.DiagnosticSeverity {
+function convertDiagnosticCategory(input: ts.DiagnosticCategory): DiagnosticSeverity {
 	switch (input) {
-		case 0 satisfies ts.DiagnosticCategory.Warning: return 2 satisfies typeof vscode.DiagnosticSeverity.Warning;
-		case 1 satisfies ts.DiagnosticCategory.Error: return 1 satisfies typeof vscode.DiagnosticSeverity.Error;
-		case 2 satisfies ts.DiagnosticCategory.Suggestion: return 4 satisfies typeof vscode.DiagnosticSeverity.Hint;
-		case 3 satisfies ts.DiagnosticCategory.Message: return 3 satisfies typeof vscode.DiagnosticSeverity.Information;
+		case 0 satisfies ts.DiagnosticCategory.Warning: return 2 satisfies typeof DiagnosticSeverity.Warning;
+		case 1 satisfies ts.DiagnosticCategory.Error: return 1 satisfies typeof DiagnosticSeverity.Error;
+		case 2 satisfies ts.DiagnosticCategory.Suggestion: return 4 satisfies typeof DiagnosticSeverity.Hint;
+		case 3 satisfies ts.DiagnosticCategory.Message: return 3 satisfies typeof DiagnosticSeverity.Information;
 	}
-	return 1 satisfies typeof vscode.DiagnosticSeverity.Error;
+	return 1 satisfies typeof DiagnosticSeverity.Error;
 }
 
 function getMessageText(diag: ts.Diagnostic | ts.DiagnosticMessageChain, level = 0) {
@@ -126,7 +126,7 @@ function getMessageText(diag: ts.Diagnostic | ts.DiagnosticMessageChain, level =
 
 export function applyCompletionEntryDetails(
 	ts: typeof import('typescript'),
-	item: vscode.CompletionItem,
+	item: CompletionItem,
 	data: ts.CompletionEntryDetails,
 	document: TextDocument,
 	fileNameToUri: (fileName: string) => URI,
@@ -171,12 +171,12 @@ export function convertCompletionInfo<T>(
 	ts: typeof import('typescript'),
 	completionContext: ts.CompletionInfo,
 	document: TextDocument,
-	position: vscode.Position,
+	position: Position,
 	createData: (tsEntry: ts.CompletionEntry) => T,
-): vscode.CompletionList {
+): CompletionList {
 	const lt_320 = semver.lt(ts.version, '3.2.0');
 	const gte_300 = semver.gte(ts.version, '3.0.0');
-	const wordRange: vscode.Range | undefined = completionContext.optionalReplacementSpan
+	const wordRange: Range | undefined = completionContext.optionalReplacementSpan
 		? convertTextSpan(completionContext.optionalReplacementSpan, document)
 		: undefined;
 	const line = getLineText(document, position.line);
@@ -193,7 +193,7 @@ export function convertCompletionInfo<T>(
 
 	function convertCompletionEntry(tsEntry: ts.CompletionEntry, document: TextDocument) {
 
-		const item: vscode.CompletionItem = { label: tsEntry.name };
+		const item: CompletionItem = { label: tsEntry.name };
 
 		item.kind = convertCompletionItemKind(tsEntry.kind);
 
@@ -219,14 +219,14 @@ export function convertCompletionInfo<T>(
 
 		item.preselect = tsEntry.isRecommended;
 
-		let range: vscode.Range | ReturnType<typeof getRangeFromReplacementSpan> = getRangeFromReplacementSpan(tsEntry, document);
+		let range: Range | ReturnType<typeof getRangeFromReplacementSpan> = getRangeFromReplacementSpan(tsEntry, document);
 		item.commitCharacters = getCommitCharacters(tsEntry, {
 			isNewIdentifierLocation: completionContext.isNewIdentifierLocation,
 			isInValidCommitCharacterContext: isInValidCommitCharacterContext(document, position),
 			enableCallCompletions: true, // TODO: suggest.completeFunctionCalls
 		});
 		item.insertText = tsEntry.insertText;
-		item.insertTextFormat = isSnippet ? 2 satisfies typeof vscode.InsertTextFormat.Snippet : 1 satisfies typeof vscode.InsertTextFormat.PlainText;
+		item.insertTextFormat = isSnippet ? 2 satisfies typeof InsertTextFormat.Snippet : 1 satisfies typeof InsertTextFormat.PlainText;
 		item.filterText = getFilterText(tsEntry, wordRange, line, tsEntry.insertText);
 
 		if (completionContext?.isMemberCompletion && dotAccessorContext && !isSnippet) {
@@ -275,7 +275,7 @@ export function convertCompletionInfo<T>(
 
 	function getDotAccessorContext(document: TextDocument) {
 		let dotAccessorContext: {
-			range: vscode.Range;
+			range: Range;
 			text: string;
 		} | undefined;
 
@@ -308,7 +308,7 @@ export function convertCompletionInfo<T>(
 			return;
 		}
 
-		let replaceRange: vscode.Range = {
+		let replaceRange: Range = {
 			start: document.positionAt(tsEntry.replacementSpan.start),
 			end: document.positionAt(tsEntry.replacementSpan.start + tsEntry.replacementSpan.length),
 		};
@@ -333,7 +333,7 @@ export function convertCompletionInfo<T>(
 		};
 	}
 
-	function getFilterText(tsEntry: ts.CompletionEntry, wordRange: vscode.Range | undefined, line: string, insertText: string | undefined): string | undefined {
+	function getFilterText(tsEntry: ts.CompletionEntry, wordRange: Range | undefined, line: string, insertText: string | undefined): string | undefined {
 		// Handle private field completions
 		if (tsEntry.name.startsWith('#')) {
 			const wordStart = wordRange ? line.charAt(wordRange.start.character) : undefined;
@@ -391,7 +391,7 @@ export function convertCompletionInfo<T>(
 
 	function isInValidCommitCharacterContext(
 		document: TextDocument,
-		position: vscode.Position,
+		position: Position,
 	): boolean {
 		if (lt_320) {
 			// Workaround for https://github.com/microsoft/TypeScript/issues/27742
@@ -410,11 +410,11 @@ export function convertCompletionInfo<T>(
 	}
 }
 
-function convertCompletionItemKind(kind: string): vscode.CompletionItemKind {
+function convertCompletionItemKind(kind: string): CompletionItemKind {
 	switch (kind) {
 		case PConst.Kind.primitiveType:
 		case PConst.Kind.keyword:
-			return 14 satisfies typeof vscode.CompletionItemKind.Keyword;
+			return 14 satisfies typeof CompletionItemKind.Keyword;
 
 		case PConst.Kind.const:
 		case PConst.Kind.let:
@@ -422,58 +422,58 @@ function convertCompletionItemKind(kind: string): vscode.CompletionItemKind {
 		case PConst.Kind.localVariable:
 		case PConst.Kind.alias:
 		case PConst.Kind.parameter:
-			return 6 satisfies typeof vscode.CompletionItemKind.Variable;
+			return 6 satisfies typeof CompletionItemKind.Variable;
 
 		case PConst.Kind.memberVariable:
 		case PConst.Kind.memberGetAccessor:
 		case PConst.Kind.memberSetAccessor:
-			return 5 satisfies typeof vscode.CompletionItemKind.Field;
+			return 5 satisfies typeof CompletionItemKind.Field;
 
 		case PConst.Kind.function:
 		case PConst.Kind.localFunction:
-			return 3 satisfies typeof vscode.CompletionItemKind.Function;
+			return 3 satisfies typeof CompletionItemKind.Function;
 
 		case PConst.Kind.method:
 		case PConst.Kind.constructSignature:
 		case PConst.Kind.callSignature:
 		case PConst.Kind.indexSignature:
-			return 2 satisfies typeof vscode.CompletionItemKind.Method;
+			return 2 satisfies typeof CompletionItemKind.Method;
 
 		case PConst.Kind.enum:
-			return 13 satisfies typeof vscode.CompletionItemKind.Enum;
+			return 13 satisfies typeof CompletionItemKind.Enum;
 
 		case PConst.Kind.enumMember:
-			return 20 satisfies typeof vscode.CompletionItemKind.EnumMember;
+			return 20 satisfies typeof CompletionItemKind.EnumMember;
 
 		case PConst.Kind.module:
 		case PConst.Kind.externalModuleName:
-			return 9 satisfies typeof vscode.CompletionItemKind.Module;
+			return 9 satisfies typeof CompletionItemKind.Module;
 
 		case PConst.Kind.class:
 		case PConst.Kind.type:
-			return 7 satisfies typeof vscode.CompletionItemKind.Class;
+			return 7 satisfies typeof CompletionItemKind.Class;
 
 		case PConst.Kind.interface:
-			return 8 satisfies typeof vscode.CompletionItemKind.Interface;
+			return 8 satisfies typeof CompletionItemKind.Interface;
 
 		case PConst.Kind.warning:
-			return 1 satisfies typeof vscode.CompletionItemKind.Text;
+			return 1 satisfies typeof CompletionItemKind.Text;
 
 		case PConst.Kind.script:
-			return 17 satisfies typeof vscode.CompletionItemKind.File;
+			return 17 satisfies typeof CompletionItemKind.File;
 
 		case PConst.Kind.directory:
-			return 19 satisfies typeof vscode.CompletionItemKind.Folder;
+			return 19 satisfies typeof CompletionItemKind.Folder;
 
 		case PConst.Kind.string:
-			return 21 satisfies typeof vscode.CompletionItemKind.Constant;
+			return 21 satisfies typeof CompletionItemKind.Constant;
 
 		default:
-			return 10 satisfies typeof vscode.CompletionItemKind.Property;
+			return 10 satisfies typeof CompletionItemKind.Property;
 	}
 }
 
-function handleKindModifiers(item: vscode.CompletionItem, tsEntry: ts.CompletionEntry | ts.CompletionEntryDetails) {
+function handleKindModifiers(item: CompletionItem, tsEntry: ts.CompletionEntry | ts.CompletionEntryDetails) {
 	if (tsEntry.kindModifiers) {
 		const kindModifiers = parseKindModifier(tsEntry.kindModifiers);
 		if (kindModifiers.has(PConst.KindModifiers.optional)) {
@@ -487,11 +487,11 @@ function handleKindModifiers(item: vscode.CompletionItem, tsEntry: ts.Completion
 			item.label += '?';
 		}
 		if (kindModifiers.has(PConst.KindModifiers.deprecated)) {
-			item.tags = [1 satisfies typeof vscode.CompletionItemTag.Deprecated];
+			item.tags = [1 satisfies typeof CompletionItemTag.Deprecated];
 		}
 
 		if (kindModifiers.has(PConst.KindModifiers.color)) {
-			item.kind = 16 satisfies typeof vscode.CompletionItemKind.Color;
+			item.kind = 16 satisfies typeof CompletionItemKind.Color;
 		}
 
 		if (tsEntry.kind === PConst.Kind.script) {
@@ -509,7 +509,7 @@ function handleKindModifiers(item: vscode.CompletionItem, tsEntry: ts.Completion
 	}
 }
 
-function rangeUnion(a: vscode.Range, b: vscode.Range): vscode.Range {
+function rangeUnion(a: Range, b: Range): Range {
 	const start = (a.start.line < b.start.line || (a.start.line === b.start.line && a.start.character < b.start.character)) ? a.start : b.start;
 	const end = (a.end.line > b.end.line || (a.end.line === b.end.line && a.end.character > b.end.character)) ? a.end : b.end;
 	return { start, end };
@@ -531,7 +531,7 @@ export function convertNavigateToItem(
 	item: ts.NavigateToItem,
 	document: TextDocument,
 ) {
-	const info: vscode.WorkspaceSymbol = {
+	const info: WorkspaceSymbol = {
 		name: getLabel(item),
 		kind: convertScriptElementKind(item.kind),
 		location: {
@@ -541,7 +541,7 @@ export function convertNavigateToItem(
 	};
 	const kindModifiers = item.kindModifiers ? parseKindModifier(item.kindModifiers) : undefined;
 	if (kindModifiers?.has(PConst.KindModifiers.deprecated)) {
-		info.tags = [1 satisfies typeof vscode.SymbolTag.Deprecated];
+		info.tags = [1 satisfies typeof SymbolTag.Deprecated];
 	}
 	return info;
 }
@@ -554,31 +554,31 @@ function getLabel(item: ts.NavigateToItem) {
 	return label;
 }
 
-function convertScriptElementKind(kind: ts.ScriptElementKind): vscode.SymbolKind {
+function convertScriptElementKind(kind: ts.ScriptElementKind): SymbolKind {
 	switch (kind) {
-		case PConst.Kind.method: return 6 satisfies typeof vscode.SymbolKind.Method;
-		case PConst.Kind.enum: return 10 satisfies typeof vscode.SymbolKind.Enum;
-		case PConst.Kind.enumMember: return 22 satisfies typeof vscode.SymbolKind.EnumMember;
-		case PConst.Kind.function: return 12 satisfies typeof vscode.SymbolKind.Function;
-		case PConst.Kind.class: return 5 satisfies typeof vscode.SymbolKind.Class;
-		case PConst.Kind.interface: return 11 satisfies typeof vscode.SymbolKind.Interface;
-		case PConst.Kind.type: return 5 satisfies typeof vscode.SymbolKind.Class;
-		case PConst.Kind.memberVariable: return 8 satisfies typeof vscode.SymbolKind.Field;
-		case PConst.Kind.memberGetAccessor: return 8 satisfies typeof vscode.SymbolKind.Field;
-		case PConst.Kind.memberSetAccessor: return 8 satisfies typeof vscode.SymbolKind.Field;
-		case PConst.Kind.variable: return 13 satisfies typeof vscode.SymbolKind.Variable;
-		default: return 13 satisfies typeof vscode.SymbolKind.Variable;
+		case PConst.Kind.method: return 6 satisfies typeof SymbolKind.Method;
+		case PConst.Kind.enum: return 10 satisfies typeof SymbolKind.Enum;
+		case PConst.Kind.enumMember: return 22 satisfies typeof SymbolKind.EnumMember;
+		case PConst.Kind.function: return 12 satisfies typeof SymbolKind.Function;
+		case PConst.Kind.class: return 5 satisfies typeof SymbolKind.Class;
+		case PConst.Kind.interface: return 11 satisfies typeof SymbolKind.Interface;
+		case PConst.Kind.type: return 5 satisfies typeof SymbolKind.Class;
+		case PConst.Kind.memberVariable: return 8 satisfies typeof SymbolKind.Field;
+		case PConst.Kind.memberGetAccessor: return 8 satisfies typeof SymbolKind.Field;
+		case PConst.Kind.memberSetAccessor: return 8 satisfies typeof SymbolKind.Field;
+		case PConst.Kind.variable: return 13 satisfies typeof SymbolKind.Variable;
+		default: return 13 satisfies typeof SymbolKind.Variable;
 	}
 }
 
 // inlayHints
 
-export function convertInlayHint(hint: ts.InlayHint, document: TextDocument): vscode.InlayHint {
-	const result: vscode.InlayHint = {
+export function convertInlayHint(hint: ts.InlayHint, document: TextDocument): InlayHint {
+	const result: InlayHint = {
 		position: document.positionAt(hint.position),
 		label: hint.text,
-		kind: hint.kind === 'Type' ? 1 satisfies typeof vscode.InlayHintKind.Type
-			: hint.kind === 'Parameter' ? 2 satisfies typeof vscode.InlayHintKind.Parameter
+		kind: hint.kind === 'Type' ? 1 satisfies typeof InlayHintKind.Type
+			: hint.kind === 'Parameter' ? 2 satisfies typeof InlayHintKind.Parameter
 				: undefined,
 	};
 	result.paddingLeft = hint.whitespaceBefore;
@@ -588,18 +588,18 @@ export function convertInlayHint(hint: ts.InlayHint, document: TextDocument): vs
 
 // documentHighlight
 
-export function convertHighlightSpan(span: ts.HighlightSpan, document: TextDocument): vscode.DocumentHighlight {
+export function convertHighlightSpan(span: ts.HighlightSpan, document: TextDocument): DocumentHighlight {
 	return {
 		kind: span.kind === 'writtenReference'
-			? 3 satisfies typeof vscode.DocumentHighlightKind.Write
-			: 2 satisfies typeof vscode.DocumentHighlightKind.Read,
+			? 3 satisfies typeof DocumentHighlightKind.Write
+			: 2 satisfies typeof DocumentHighlightKind.Read,
 		range: convertTextSpan(span.textSpan, document),
 	};
 }
 
 // selectionRanges
 
-export function convertSelectionRange(range: ts.SelectionRange, document: TextDocument): vscode.SelectionRange {
+export function convertSelectionRange(range: ts.SelectionRange, document: TextDocument): SelectionRange {
 	return {
 		parent: range.parent
 			? convertSelectionRange(range.parent, document)
@@ -616,7 +616,7 @@ export function convertFileTextChanges(
 	fileNameToUri: (fileName: string) => URI,
 	getTextDocument: (uri: URI) => TextDocument | undefined,
 ) {
-	const workspaceEdit: vscode.WorkspaceEdit = {};
+	const workspaceEdit: WorkspaceEdit = {};
 	for (const change of changes) {
 		if (!workspaceEdit.documentChanges) {
 			workspaceEdit.documentChanges = [];
@@ -660,7 +660,7 @@ export function convertRenameLocations(
 	fileNameToUri: (fileName: string) => URI,
 	getTextDocument: (uri: URI) => TextDocument | undefined,
 ) {
-	const workspaceEdit: vscode.WorkspaceEdit = {};
+	const workspaceEdit: WorkspaceEdit = {};
 	for (const location of locations) {
 		if (!workspaceEdit.changes) {
 			workspaceEdit.changes = {};
@@ -693,7 +693,7 @@ export function convertQuickInfo(
 	document: TextDocument,
 	fileNameToUri: (fileName: string) => URI,
 	getTextDocument: (uri: URI) => TextDocument | undefined,
-): vscode.Hover {
+): Hover {
 	const parts: string[] = [];
 	const displayString = ts.displayPartsToString(info.displayParts);
 	const documentation = previewer.markdownDocumentation(
@@ -708,8 +708,8 @@ export function convertQuickInfo(
 	if (documentation) {
 		parts.push(documentation);
 	}
-	const markdown: vscode.MarkupContent = {
-		kind: 'markdown' satisfies typeof vscode.MarkupKind.Markdown,
+	const markdown: MarkupContent = {
+		kind: 'markdown' satisfies typeof MarkupKind.Markdown,
 		value: parts.join('\n\n'),
 	};
 	return {
@@ -720,7 +720,7 @@ export function convertQuickInfo(
 
 // documentSymbol
 
-export function convertNavTree(item: ts.NavigationTree, document: TextDocument): vscode.DocumentSymbol[] {
+export function convertNavTree(item: ts.NavigationTree, document: TextDocument): DocumentSymbol[] {
 	if (!shouldIncludeEntry(item)) {
 		return [];
 	}
@@ -743,7 +743,7 @@ export function convertNavTree(item: ts.NavigationTree, document: TextDocument):
 			start: Math.min(span.start, nameSpan.start),
 			end: Math.max(span.start + span.length, nameSpan.start + nameSpan.length),
 		};
-		const symbol: vscode.DocumentSymbol = {
+		const symbol: DocumentSymbol = {
 			name: item.text,
 			kind: getSymbolKind(item.kind),
 			range: convertTextSpan({
@@ -757,31 +757,31 @@ export function convertNavTree(item: ts.NavigationTree, document: TextDocument):
 		if (kindModifiers.has(PConst.KindModifiers.deprecated)) {
 			symbol.deprecated = true;
 			symbol.tags ??= [];
-			symbol.tags.push(1 satisfies typeof vscode.SymbolTag.Deprecated);
+			symbol.tags.push(1 satisfies typeof SymbolTag.Deprecated);
 		}
 		return symbol;
 	});
 }
 
-const getSymbolKind = (kind: string): vscode.SymbolKind => {
+const getSymbolKind = (kind: string): SymbolKind => {
 	switch (kind) {
-		case PConst.Kind.module: return 2 satisfies typeof vscode.SymbolKind.Module;
-		case PConst.Kind.class: return 5 satisfies typeof vscode.SymbolKind.Class;
-		case PConst.Kind.enum: return 10 satisfies typeof vscode.SymbolKind.Enum;
-		case PConst.Kind.interface: return 11 satisfies typeof vscode.SymbolKind.Interface;
-		case PConst.Kind.method: return 6 satisfies typeof vscode.SymbolKind.Method;
-		case PConst.Kind.memberVariable: return 7 satisfies typeof vscode.SymbolKind.Property;
-		case PConst.Kind.memberGetAccessor: return 7 satisfies typeof vscode.SymbolKind.Property;
-		case PConst.Kind.memberSetAccessor: return 7 satisfies typeof vscode.SymbolKind.Property;
-		case PConst.Kind.variable: return 13 satisfies typeof vscode.SymbolKind.Variable;
-		case PConst.Kind.const: return 13 satisfies typeof vscode.SymbolKind.Variable;
-		case PConst.Kind.localVariable: return 13 satisfies typeof vscode.SymbolKind.Variable;
-		case PConst.Kind.function: return 12 satisfies typeof vscode.SymbolKind.Function;
-		case PConst.Kind.localFunction: return 12 satisfies typeof vscode.SymbolKind.Function;
-		case PConst.Kind.constructSignature: return 9 satisfies typeof vscode.SymbolKind.Constructor;
-		case PConst.Kind.constructorImplementation: return 9 satisfies typeof vscode.SymbolKind.Constructor;
+		case PConst.Kind.module: return 2 satisfies typeof SymbolKind.Module;
+		case PConst.Kind.class: return 5 satisfies typeof SymbolKind.Class;
+		case PConst.Kind.enum: return 10 satisfies typeof SymbolKind.Enum;
+		case PConst.Kind.interface: return 11 satisfies typeof SymbolKind.Interface;
+		case PConst.Kind.method: return 6 satisfies typeof SymbolKind.Method;
+		case PConst.Kind.memberVariable: return 7 satisfies typeof SymbolKind.Property;
+		case PConst.Kind.memberGetAccessor: return 7 satisfies typeof SymbolKind.Property;
+		case PConst.Kind.memberSetAccessor: return 7 satisfies typeof SymbolKind.Property;
+		case PConst.Kind.variable: return 13 satisfies typeof SymbolKind.Variable;
+		case PConst.Kind.const: return 13 satisfies typeof SymbolKind.Variable;
+		case PConst.Kind.localVariable: return 13 satisfies typeof SymbolKind.Variable;
+		case PConst.Kind.function: return 12 satisfies typeof SymbolKind.Function;
+		case PConst.Kind.localFunction: return 12 satisfies typeof SymbolKind.Function;
+		case PConst.Kind.constructSignature: return 9 satisfies typeof SymbolKind.Constructor;
+		case PConst.Kind.constructorImplementation: return 9 satisfies typeof SymbolKind.Constructor;
 	}
-	return 13 satisfies typeof vscode.SymbolKind.Variable;
+	return 13 satisfies typeof SymbolKind.Variable;
 };
 
 function shouldIncludeEntry(item: ts.NavigationTree): boolean {
@@ -793,7 +793,7 @@ function shouldIncludeEntry(item: ts.NavigationTree): boolean {
 
 // foldingRanges
 
-export function convertOutliningSpan(outliningSpan: ts.OutliningSpan, document: TextDocument): vscode.FoldingRange {
+export function convertOutliningSpan(outliningSpan: ts.OutliningSpan, document: TextDocument): FoldingRange {
 	const start = document.positionAt(outliningSpan.textSpan.start);
 	const end = adjustFoldingEnd(start, document.positionAt(outliningSpan.textSpan.start + outliningSpan.textSpan.length), document);
 	return {
@@ -805,11 +805,11 @@ export function convertOutliningSpan(outliningSpan: ts.OutliningSpan, document: 
 	};
 }
 
-export function convertOutliningSpanKind(kind: ts.OutliningSpanKind): vscode.FoldingRangeKind | undefined {
+export function convertOutliningSpanKind(kind: ts.OutliningSpanKind): FoldingRangeKind | undefined {
 	switch (kind) {
-		case 'comment': return 'comment' satisfies typeof vscode.FoldingRangeKind.Comment;
-		case 'region': return 'region' satisfies typeof vscode.FoldingRangeKind.Region;
-		case 'imports': return 'imports' satisfies typeof vscode.FoldingRangeKind.Imports;
+		case 'comment': return 'comment' satisfies typeof FoldingRangeKind.Comment;
+		case 'region': return 'region' satisfies typeof FoldingRangeKind.Region;
+		case 'imports': return 'imports' satisfies typeof FoldingRangeKind.Imports;
 		case 'code':
 		default: return undefined;
 	}
@@ -818,7 +818,7 @@ export function convertOutliningSpanKind(kind: ts.OutliningSpanKind): vscode.Fol
 const foldEndPairCharacters = ['}', ']', ')', '`'];
 
 // https://github.com/microsoft/vscode/blob/bed61166fb604e519e82e4d1d1ed839bc45d65f8/extensions/typescript-language-features/src/languageFeatures/folding.ts#L61-L73
-function adjustFoldingEnd(start: vscode.Position, end: vscode.Position, document: TextDocument) {
+function adjustFoldingEnd(start: Position, end: Position, document: TextDocument) {
 	// workaround for #47240
 	if (end.character > 0) {
 		const foldEndCharacter = document.getText({
@@ -836,7 +836,7 @@ function adjustFoldingEnd(start: vscode.Position, end: vscode.Position, document
 
 // formatting
 
-export function convertTextChange(edit: ts.TextChange, document: TextDocument | undefined): vscode.TextEdit {
+export function convertTextChange(edit: ts.TextChange, document: TextDocument | undefined): TextEdit {
 	return {
 		range: convertTextSpan(edit.span, document),
 		newText: edit.newText,
@@ -845,7 +845,7 @@ export function convertTextChange(edit: ts.TextChange, document: TextDocument | 
 
 // callHierarchy
 
-export function convertCallHierarchyIncomingCall(item: ts.CallHierarchyIncomingCall, ctx: SharedContext): vscode.CallHierarchyIncomingCall {
+export function convertCallHierarchyIncomingCall(item: ts.CallHierarchyIncomingCall, ctx: SharedContext): CallHierarchyIncomingCall {
 	const uri = ctx.fileNameToUri(item.from.file);
 	const document = ctx.getTextDocument(uri);
 	return {
@@ -856,7 +856,7 @@ export function convertCallHierarchyIncomingCall(item: ts.CallHierarchyIncomingC
 	};
 }
 
-export function convertCallHierarchyOutgoingCall(item: ts.CallHierarchyOutgoingCall, fromDocument: TextDocument, ctx: SharedContext): vscode.CallHierarchyOutgoingCall {
+export function convertCallHierarchyOutgoingCall(item: ts.CallHierarchyOutgoingCall, fromDocument: TextDocument, ctx: SharedContext): CallHierarchyOutgoingCall {
 	return {
 		to: convertCallHierarchyItem(item.to, ctx),
 		fromRanges: item.fromSpans
@@ -865,14 +865,14 @@ export function convertCallHierarchyOutgoingCall(item: ts.CallHierarchyOutgoingC
 	};
 }
 
-export function convertCallHierarchyItem(item: ts.CallHierarchyItem, ctx: SharedContext): vscode.CallHierarchyItem {
+export function convertCallHierarchyItem(item: ts.CallHierarchyItem, ctx: SharedContext): CallHierarchyItem {
 	const rootPath = ctx.languageService.getProgram()?.getCompilerOptions().rootDir ?? '';
 	const uri = ctx.fileNameToUri(item.file);
 	const document = ctx.getTextDocument(uri);
 	const useFileName = isSourceFileItem(item);
 	const name = useFileName ? path.basename(item.file) : item.name;
 	const detail = useFileName ? path.relative(rootPath, path.dirname(item.file)) : item.containerName ?? '';
-	const result: vscode.CallHierarchyItem = {
+	const result: CallHierarchyItem = {
 		kind: typeConverters.SymbolKind.fromProtocolScriptElementKind(item.kind),
 		name,
 		detail,
@@ -883,7 +883,7 @@ export function convertCallHierarchyItem(item: ts.CallHierarchyItem, ctx: Shared
 
 	const kindModifiers = item.kindModifiers ? parseKindModifier(item.kindModifiers) : undefined;
 	if (kindModifiers?.has(PConst.KindModifiers.deprecated)) {
-		result.tags = [1 satisfies typeof vscode.SymbolTag.Deprecated];
+		result.tags = [1 satisfies typeof SymbolTag.Deprecated];
 	}
 	return result;
 }
@@ -894,7 +894,7 @@ function isSourceFileItem(item: ts.CallHierarchyItem) {
 
 // base
 
-export function convertDocumentSpanToLocation(documentSpan: ts.DocumentSpan, ctx: SharedContext): vscode.Location {
+export function convertDocumentSpanToLocation(documentSpan: ts.DocumentSpan, ctx: SharedContext): Location {
 	const uri = ctx.fileNameToUri(documentSpan.fileName);
 	const document = ctx.getTextDocument(uri);
 	const range = convertTextSpan(documentSpan.textSpan, document);
@@ -904,7 +904,7 @@ export function convertDocumentSpanToLocation(documentSpan: ts.DocumentSpan, ctx
 	};
 }
 
-export function convertDefinitionInfoAndBoundSpan(info: ts.DefinitionInfoAndBoundSpan, document: TextDocument, ctx: SharedContext): vscode.LocationLink[] {
+export function convertDefinitionInfoAndBoundSpan(info: ts.DefinitionInfoAndBoundSpan, document: TextDocument, ctx: SharedContext): LocationLink[] {
 	if (!info.definitions) {
 		return [];
 	}
@@ -920,7 +920,7 @@ export function convertDefinitionInfoAndBoundSpan(info: ts.DefinitionInfoAndBoun
 		.filter(notEmpty);
 }
 
-export function convertDocumentSpantoLocationLink(documentSpan: ts.DocumentSpan, ctx: SharedContext): vscode.LocationLink {
+export function convertDocumentSpantoLocationLink(documentSpan: ts.DocumentSpan, ctx: SharedContext): LocationLink {
 	const targetUri = ctx.fileNameToUri(documentSpan.fileName);
 	const document = ctx.getTextDocument(targetUri);
 	const targetSelectionRange = convertTextSpan(documentSpan.textSpan, document);
@@ -938,7 +938,7 @@ export function convertDocumentSpantoLocationLink(documentSpan: ts.DocumentSpan,
 	};
 }
 
-export function convertTextSpan(textSpan: ts.TextSpan, document: TextDocument | undefined): vscode.Range {
+export function convertTextSpan(textSpan: ts.TextSpan, document: TextDocument | undefined): Range {
 	if (!document) {
 		return {
 			start: { line: 0, character: 0 },

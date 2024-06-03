@@ -1,7 +1,9 @@
-import type { Disposable, DocumentSelector, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service/lib/types';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
 import * as yaml from 'yaml-language-server';
+
+import  { Disposable, DocumentSelector} from 'vscode-languageclient'
 
 export interface Provide {
 	'yaml/languageService': () => yaml.LanguageService;

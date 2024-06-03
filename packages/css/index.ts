@@ -1,7 +1,8 @@
-import type { CodeAction, Diagnostic, Disposable, DocumentSelector, FormattingOptions, LocationLink, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service/lib/types';
 import * as css from 'vscode-css-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
+import { Disposable, DocumentSelector, FormattingOptions, LocationLink,  } from 'vscode-languageserver-protocol'
 
 export interface Provide {
 	'css/stylesheet': (document: TextDocument, ls: css.LanguageService) => css.Stylesheet;
@@ -162,7 +163,7 @@ export function create({
 
 				provideCodeActions(document, range, context) {
 					return worker(document, (stylesheet, cssLs) => {
-						return cssLs.doCodeActions2(document, range, context, stylesheet) as CodeAction[];
+						return cssLs.doCodeActions2(document, range, context, stylesheet) as css.CodeAction[];
 					});
 				},
 
@@ -182,7 +183,7 @@ export function create({
 				async provideDiagnostics(document) {
 					return worker(document, async (stylesheet, cssLs) => {
 						const settings = await getLanguageSettings(document, context);
-						return cssLs.doValidation(document, stylesheet, settings) as Diagnostic[];
+						return cssLs.doValidation(document, stylesheet, settings) as css.Diagnostic[];
 					});
 				},
 

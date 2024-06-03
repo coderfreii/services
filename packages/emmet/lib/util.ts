@@ -5,10 +5,11 @@
 
 import parseStylesheet from '@emmetio/css-parser';
 import parse from '@emmetio/html-matcher';
-import type * as vscode from '@volar/language-service';
 import type * as EmmetHelper from '@vscode/emmet-helper';
 import type { Node as FlatNode, Stylesheet as FlatStylesheet, HtmlNode as HtmlFlatNode } from 'EmmetFlatNode';
 import { DocumentStreamReader } from './bufferStream';
+import type { LanguageServiceContext } from '@volar/language-service/lib/types';
+import type { TextDocument, Position } from 'vscode-languageserver-protocol';
 
 let _emmetHelper: typeof EmmetHelper;
 
@@ -45,7 +46,7 @@ export function isStyleSheet(syntax: string): boolean {
 	return stylesheetSyntaxes.includes(syntax);
 }
 
-export async function getMappingForIncludedLanguages(context: vscode.LanguageServiceContext): Promise<Record<string, string>> {
+export async function getMappingForIncludedLanguages(context: LanguageServiceContext): Promise<Record<string, string>> {
 	// Explicitly map languages that have built-in grammar in VS Code to their parent language
 	// to get emmet completion support
 	// For other languages, users will have to use `emmet.includeLanguages` or
@@ -113,9 +114,9 @@ const star = 42;
  * Traverse the given document backward & forward from given position
  * to find a complete ruleset, then parse just that to return a Stylesheet
  * @param document TextDocument
- * @param position vscode.Position
+ * @param position Position
  */
-export function parsePartialStylesheet(document: vscode.TextDocument, position: vscode.Position): FlatStylesheet | undefined {
+export function parsePartialStylesheet(document: TextDocument, position: Position): FlatStylesheet | undefined {
 	const isCSS = document.languageId === 'css';
 	const positionOffset = document.offsetAt(position);
 	let startOffset = 0;
@@ -372,7 +373,7 @@ function setupCdataNodeSubtree(documentText: string, cdataNode: HtmlFlatNode): s
 	return cdataBody;
 }
 
-export async function getEmmetConfiguration(context: vscode.LanguageServiceContext, syntax: string) {
+export async function getEmmetConfiguration(context: LanguageServiceContext, syntax: string) {
 	const emmetConfig = await context.env.getConfiguration<any>?.('emmet') ?? {};
 	const syntaxProfiles = Object.assign({}, emmetConfig['syntaxProfiles'] || {});
 	const preferences = Object.assign({}, emmetConfig['preferences'] || {});
@@ -401,7 +402,7 @@ export async function getEmmetConfiguration(context: vscode.LanguageServiceConte
 	};
 }
 
-export function getEmbeddedCssNodeIfAny(document: vscode.TextDocument, currentNode: FlatNode | undefined, position: vscode.Position): FlatNode | undefined {
+export function getEmbeddedCssNodeIfAny(document: TextDocument, currentNode: FlatNode | undefined, position: Position): FlatNode | undefined {
 	if (!currentNode) {
 		return;
 	}

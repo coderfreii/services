@@ -1,8 +1,7 @@
 import type * as html from 'vscode-html-languageservice';
 import type { PugDocument } from '../pugDocument';
 import type { Node } from '../baseParse';
-import type { FoldingRangeKind } from '@volar/language-service';
-
+import {FoldingRangeKind } from 'vscode-languageserver';
 export function register() {
 	return (pugDoc: PugDocument) => {
 

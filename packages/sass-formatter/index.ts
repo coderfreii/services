@@ -1,6 +1,7 @@
-import type { DocumentSelector, FormattingOptions, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
+import type {  ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance,  } from '@volar/language-service/lib/types';
+import {DocumentSelector, FormattingOptions} from 'vscode-languageclient'
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { SassFormatter, SassFormatterConfig } from 'sass-formatter';
-
 export function create({
 	documentSelector = ['sass'],
 	isFormattingEnabled = () => true,

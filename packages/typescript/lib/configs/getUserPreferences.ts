@@ -2,8 +2,9 @@ import * as path from 'path-browserify';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getConfigTitle } from '../shared';
-import type { LanguageServiceContext } from '@volar/language-service';
+// import type { LanguageServiceContext } from '@volar/language-service';
 import { URI } from 'vscode-uri';
+import type { LanguageServiceContext } from '@volar/language-service/lib/types';
 
 export async function getUserPreferences(
 	ctx: LanguageServiceContext,

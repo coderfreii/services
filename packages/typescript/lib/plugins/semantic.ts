@@ -1,22 +1,10 @@
 import type {
-	CancellationToken,
-	CompletionItemKind,
-	DocumentHighlight,
-	FileChangeType,
-	InsertTextFormat,
-	Location,
-	ParameterInformation,
+
 	ProviderResult,
 	LanguageServiceContext,
 	LanguageServicePlugin,
 	LanguageServicePluginInstance,
-	SignatureHelpTriggerKind,
-	SignatureInformation,
-	VirtualCode,
-	WorkspaceEdit,
-	FormattingOptions,
-	CodeActionKind,
-} from '@volar/language-service';
+} from '@volar/language-service/lib/types';
 import * as path from 'path-browserify';
 import * as semver from 'semver';
 import type * as ts from 'typescript';
@@ -51,7 +39,9 @@ import * as codeActionResolve from '../semanticFeatures/codeActionResolve';
 import * as semanticTokens from '../semanticFeatures/semanticTokens';
 import type { SharedContext } from '../semanticFeatures/types';
 import { URI } from 'vscode-uri';
-
+import type { VirtualCode } from '@volar/language-core/lib/types';
+import type { CodeActionKind, CompletionItemKind, DocumentHighlight, FileChangeType, FormattingOptions, InsertTextFormat, Location, ParameterInformation, SignatureHelpTriggerKind, SignatureInformation, WorkspaceEdit } from 'vscode-languageserver-protocol';
+import { type CancellationToken  } from 'vscode-jsonrpc';
 export interface Provide {
 	'typescript/languageService': () => ts.LanguageService;
 	'typescript/languageServiceHost': () => ts.LanguageServiceHost;

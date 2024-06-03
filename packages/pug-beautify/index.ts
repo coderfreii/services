@@ -1,5 +1,6 @@
-import type { DocumentSelector, FormattingOptions, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
-
+// import type { DocumentSelector, FormattingOptions, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
+import type {  ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance,  } from '@volar/language-service/lib/types';
+import {DocumentSelector, FormattingOptions, TextDocument} from 'vscode-languageclient'
 export function create({
 	documentSelector = ['jade'],
 	isFormattingEnabled = () => true,
