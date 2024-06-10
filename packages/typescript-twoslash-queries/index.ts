@@ -1,4 +1,3 @@
-// import type { InlayHint, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service/lib/types';
 import type { Provide } from 'volar-service-typescript';
 import type { InlayHint } from 'vscode-languageserver-protocol';
