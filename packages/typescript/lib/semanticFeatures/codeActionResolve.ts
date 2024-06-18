@@ -39,7 +39,7 @@ export function resolveFixAllCodeAction(
 	codeAction: CodeAction,
 	data: FixAllData,
 	formatOptions: ts.FormatCodeSettings,
-	preferences: ts.UserPreferences,
+	preferences: ts.UserPreferences
 ) {
 	const fixes = data.fixIds.map(fixId => safeCall(() => ctx.languageService.getCombinedCodeFix({ type: 'file', fileName: data.fileName }, fixId, formatOptions, preferences)));
 	const changes = fixes.map(fix => fix?.changes ?? []).flat();
@@ -52,7 +52,7 @@ export function resolveRefactorCodeAction(
 	data: RefactorData,
 	document: TextDocument,
 	formatOptions: ts.FormatCodeSettings,
-	preferences: ts.UserPreferences,
+	preferences: ts.UserPreferences
 ) {
 	const editInfo = safeCall(() => ctx.languageService.getEditsForRefactor(data.fileName, formatOptions, data.range, data.refactorName, data.actionName, preferences));
 	if (!editInfo) {
@@ -62,7 +62,7 @@ export function resolveRefactorCodeAction(
 	if (editInfo.renameLocation !== undefined && editInfo.renameFilename !== undefined) {
 		codeAction.command = ctx.commands.rename.create(
 			document.uri,
-			document.positionAt(editInfo.renameLocation),
+			document.positionAt(editInfo.renameLocation)
 		);
 	}
 }
@@ -72,7 +72,7 @@ export function resolveOrganizeImportsCodeAction(
 	codeAction: CodeAction,
 	data: Data,
 	formatOptions: ts.FormatCodeSettings,
-	preferences: ts.UserPreferences,
+	preferences: ts.UserPreferences
 ) {
 	const changes = safeCall(() => ctx.languageService.organizeImports({ type: 'file', fileName: data.fileName }, formatOptions, preferences));
 	codeAction.edit = convertFileTextChanges(changes ?? [], ctx.fileNameToUri, ctx.getTextDocument);

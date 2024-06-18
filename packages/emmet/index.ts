@@ -29,7 +29,7 @@ export function create({
 
 				isAdditionalCompletion: true,
 
-				async provideCompletionItems(document, position, completionContext) {
+				provideCompletionItems(document, position, completionContext) {
 					const completionResult = provideCompletionItemsInternal(document, position, completionContext);
 					if (!completionResult) {
 						lastCompletionType = undefined;
@@ -190,7 +190,7 @@ export function create({
 					} else {
 						const uri = URI.parse(document.uri);
 						const documentUri = context.decodeEmbeddedDocumentUri(uri)?.[0] ?? uri;
-						isNoisePromise = languageService.findDocumentSymbols(documentUri).then(symbols => {
+						isNoisePromise = context.getLanguageService().getDocumentSymbols(documentUri).then(symbols => {
 							return !!symbols && symbols.some(x => abbreviation === x.name || (abbreviation.startsWith(x.name + '.') && !/>|\*|\+/.test(abbreviation)));
 						});
 					}

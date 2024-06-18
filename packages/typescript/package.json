@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-typescript",
-	"version": "0.0.48",
+	"version": "0.0.51",
 	"description": "Integrate TypeScript into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/typescript",
 	"bugs": "https://github.com/volarjs/services/issues",
@@ -36,7 +36,7 @@
 		"vscode-uri": "^3.0.8"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.3.0-alpha.0"
+		"@volar/language-service": "~2.3.0"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {

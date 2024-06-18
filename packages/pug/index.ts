@@ -16,10 +16,16 @@ export interface Provide {
 
 export function create({
 	documentSelector = ['jade'],
+	configurationSections = {
+		autoCreateQuotes: 'html.autoCreateQuotes',
+	},
 	getCustomData,
 	onDidChangeCustomData,
 }: {
 	documentSelector?: DocumentSelector;
+	configurationSections?: {
+		autoCreateQuotes: string;
+	};
 	getCustomData?(context: LanguageServiceContext): ProviderResult<html.IHTMLDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
@@ -32,7 +38,7 @@ export function create({
 		name: 'pug',
 		capabilities: {
 			completionProvider: {},
-			diagnosticProvider: true,
+			diagnosticProvider: {},
 			hoverProvider: true,
 			documentHighlightProvider: true,
 			documentLinkProvider: {},
@@ -41,12 +47,12 @@ export function create({
 			selectionRangeProvider: true,
 			autoInsertionProvider: {
 				triggerCharacters: ['='],
-				configurationSections: ['html.autoCreateQuotes'],
+				configurationSections: [configurationSections.autoCreateQuotes],
 			},
 		},
-		create(context, languageService): LanguageServicePluginInstance<Provide> {
+		create(context): LanguageServicePluginInstance<Provide> {
 
-			const htmlService = _htmlService.create(context, languageService);
+			const htmlService = _htmlService.create(context);
 			const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();
 			const pugLs = pug.getLanguageService(htmlService.provide['html/languageService']());
 
@@ -60,7 +66,7 @@ export function create({
 
 				provideCompletionItems(document, position, _) {
 					return worker(document, pugDocument => {
-						return pugLs.doComplete(pugDocument, position, context, htmlService.provide['html/documentContext'](), /** TODO: CompletionConfiguration */);
+						return pugLs.doComplete(pugDocument, position, context, htmlService.provide['html/documentContext']() /** TODO: CompletionConfiguration */);
 					});
 				},
 
@@ -112,7 +118,7 @@ export function create({
 						const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.map.embeddedDocument, token) ?? [];
 						const pugResult = htmlResult.map(htmlSymbol => transformDocumentSymbol(
 							htmlSymbol,
-							range => pugDoc.map.getSourceRange(range),
+							range => pugDoc.map.getSourceRange(range)
 						)).filter((symbol): symbol is NonNullable<typeof symbol> => symbol !== undefined);
 
 						return pugResult;
@@ -139,7 +145,7 @@ export function create({
 					return worker(document, async pugDocument => {
 						if (change.rangeLength === 0 && change.text.endsWith('=')) {
 
-							const enabled = (await context.env.getConfiguration?.<boolean>('html.autoCreateQuotes')) ?? true;
+							const enabled = (await context.env.getConfiguration?.<boolean>(configurationSections.autoCreateQuotes)) ?? true;
 
 							if (enabled) {
 

@@ -38,7 +38,7 @@ export function create({
 					const oldRangeText = document.getText(range);
 					const newRangeText = prettyhtml(
 						oldRangeText,
-						await getFormattingOptions(document, options, context),
+						await getFormattingOptions(document, options, context)
 					).contents;
 
 					if (newRangeText === oldRangeText) {

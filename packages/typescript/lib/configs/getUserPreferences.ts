@@ -8,7 +8,7 @@ import type { LanguageServiceContext } from '@volar/language-service/lib/types';
 
 export async function getUserPreferences(
 	ctx: LanguageServiceContext,
-	document: TextDocument,
+	document: TextDocument
 ): Promise<ts.UserPreferences> {
 	let currentDirectory = '';
 	if (ctx.language.typescript) {

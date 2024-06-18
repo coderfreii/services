@@ -84,7 +84,7 @@ export function create(
 	}: {
 		isValidationEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 		isSuggestionsEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
-	} = {},
+	} = {}
 ): LanguageServicePlugin {
 	return {
 		name: 'typescript-semantic',
@@ -114,7 +114,7 @@ export function create(
 			callHierarchyProvider: true,
 			definitionProvider: true,
 			typeDefinitionProvider: true,
-			diagnosticProvider: true,
+			diagnosticProvider: {},
 			hoverProvider: true,
 			implementationProvider: true,
 			referencesProvider: true,
@@ -174,14 +174,66 @@ export function create(
 			if (!context.language.typescript) {
 				return {};
 			}
-			const { sys, languageServiceHost, asFileName, asScriptId } = context.language.typescript;
+			const { sys, languageServiceHost, asFileName, asScriptId, getExtraServiceScript } = context.language.typescript;
 			const created = tsWithImportCache.createLanguageService(
 				ts,
 				sys,
 				languageServiceHost,
-				proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory())),
+				proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory()))
 			);
 			const { languageService } = created;
+			const ctx: SharedContext = {
+				...context,
+				languageServiceHost,
+				languageService,
+				uriToFileName(uri) {
+					const virtualScript = getVirtualScriptByUri(uri);
+					if (virtualScript) {
+						return virtualScript.fileName;
+					}
+					return asFileName(uri);
+				},
+				fileNameToUri(fileName) {
+					const extraServiceScript = getExtraServiceScript(fileName);
+					if (extraServiceScript) {
+						const sourceScript = context.language.scripts.fromVirtualCode(extraServiceScript.code);
+						return context.encodeEmbeddedDocumentUri(sourceScript.id, extraServiceScript.code.id);
+					}
+
+					const uri = asScriptId(fileName);
+					const sourceScript = context.language.scripts.get(uri);
+					const serviceScript = sourceScript?.generated?.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
+					if (sourceScript && serviceScript) {
+						return context.encodeEmbeddedDocumentUri(sourceScript.id, serviceScript.code.id);
+					}
+
+					return uri;
+				},
+				getTextDocument(uri) {
+					const decoded = context.decodeEmbeddedDocumentUri(uri);
+					if (decoded) {
+						const sourceScript = context.language.scripts.get(decoded[0]);
+						const virtualCode = sourceScript?.generated?.embeddedCodes.get(decoded[1]);
+						if (virtualCode) {
+							return context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
+						}
+					}
+					else {
+						const sourceFile = context.language.scripts.get(uri);
+						if (sourceFile) {
+							return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
+						}
+					}
+				},
+			};
+			const getCodeActions = codeActions.register(ctx);
+			const doCodeActionResolve = codeActionResolve.register(ctx);
+			const getDocumentSemanticTokens = semanticTokens.register(ts, ctx);
+
+			/* typescript-language-features is hardcode true */
+			const renameInfoOptions = { allowRenameOfImportPath: true };
+
+			let formattingOptions: FormattingOptions | undefined;
 
 			if (created.setPreferences && context.env.getConfiguration) {
 
@@ -221,7 +273,7 @@ export function create(
 				function updateSourceScriptFileNames() {
 					sourceScriptNames.clear();
 					for (const fileName of languageServiceHost.getScriptFileNames()) {
-						const uri = asScriptId(fileName);
+						const uri = ctx.fileNameToUri(fileName);
 						const sourceScript = context.language.scripts.get(uri);
 						if (sourceScript?.generated) {
 							const tsCode = sourceScript.generated.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
@@ -235,62 +287,6 @@ export function create(
 					}
 				}
 			}
-
-			const ctx: SharedContext = {
-				...context,
-				languageServiceHost,
-				languageService,
-				uriToFileName(uri) {
-					const virtualScript = getVirtualScriptByUri(uri);
-					if (virtualScript) {
-						return virtualScript.fileName;
-					}
-					return asFileName(uri);
-				},
-				fileNameToUri(fileName) {
-					const uri = asScriptId(fileName);
-					const sourceScript = context.language.scripts.get(uri);
-					const extraServiceScript = context.language.typescript!.getExtraServiceScript(fileName);
-
-					let virtualCode = extraServiceScript?.code;
-
-					if (!virtualCode && sourceScript?.generated?.languagePlugin.typescript) {
-						const serviceScript = sourceScript.generated.languagePlugin.typescript.getServiceScript(sourceScript.generated.root);
-						if (serviceScript) {
-							virtualCode = serviceScript.code;
-						}
-					}
-					if (sourceScript && virtualCode) {
-						return context.encodeEmbeddedDocumentUri(sourceScript.id, virtualCode.id);
-					}
-
-					return uri;
-				},
-				getTextDocument(uri) {
-					const decoded = context.decodeEmbeddedDocumentUri(uri);
-					if (decoded) {
-						const sourceScript = context.language.scripts.get(decoded[0]);
-						const virtualCode = sourceScript?.generated?.embeddedCodes.get(decoded[1]);
-						if (virtualCode) {
-							return context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
-						}
-					}
-					else {
-						const sourceFile = context.language.scripts.get(uri);
-						if (sourceFile) {
-							return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
-						}
-					}
-				},
-			};
-			const getCodeActions = codeActions.register(ctx);
-			const doCodeActionResolve = codeActionResolve.register(ctx);
-			const getDocumentSemanticTokens = semanticTokens.register(ts, ctx);
-
-			/* typescript-language-features is hardcode true */
-			const renameInfoOptions = { allowRenameOfImportPath: true };
-
-			let formattingOptions: FormattingOptions | undefined;
 
 			return {
 
@@ -353,7 +349,7 @@ export function create(
 										data: tsEntry.data,
 										labelDetails: tsEntry.labelDetails,
 									},
-								}),
+								})
 							);
 						}
 					});
@@ -386,7 +382,7 @@ export function create(
 							details,
 							document,
 							ctx.fileNameToUri,
-							ctx.getTextDocument,
+							ctx.getTextDocument
 						);
 						const useCodeSnippetsOnMethodSuggest = await ctx.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.completeFunctionCalls') ?? false;
 						const useCodeSnippet = useCodeSnippetsOnMethodSuggest
@@ -402,7 +398,7 @@ export function create(
 										insertText: item.insertText ?? item.textEdit?.newText, // insertText is dropped by LSP in some case: https://github.com/microsoft/vscode-languageserver-node/blob/9b742021fb04ad081aa3676a9eecf4fa612084b4/client/src/common/codeConverter.ts#L659-L664
 										label: item.label,
 									},
-									details.displayParts,
+									details.displayParts
 								);
 								if (item.textEdit) {
 									item.textEdit.newText = snippet;
@@ -429,7 +425,7 @@ export function create(
 							client: ts.LanguageService,
 							filepath: string,
 							offset: number,
-							document: TextDocument,
+							document: TextDocument
 						): boolean {
 							// Workaround for https://github.com/microsoft/TypeScript/issues/12677
 							// Don't complete function calls inside of destructive assignments or imports
@@ -513,7 +509,7 @@ export function create(
 							fileToRename: string,
 							newName: string,
 							formatOptions: ts.FormatCodeSettings,
-							preferences: ts.UserPreferences,
+							preferences: ts.UserPreferences
 						): WorkspaceEdit | undefined {
 							// Make sure we preserve file extension if none provided
 							if (!path.extname(newName)) {
@@ -671,11 +667,11 @@ export function create(
 					});
 				},
 
-				async provideDiagnostics(document, token) {
+				provideDiagnostics(document, token) {
 					return provideDiagnosticsWorker(document, token, 'syntactic');
 				},
 
-				async provideSemanticDiagnostics(document, token) {
+				provideSemanticDiagnostics(document, token) {
 					return provideDiagnosticsWorker(document, token, 'semantic');
 				},
 

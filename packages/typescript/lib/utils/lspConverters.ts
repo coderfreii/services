@@ -130,7 +130,7 @@ export function applyCompletionEntryDetails(
 	data: ts.CompletionEntryDetails,
 	document: TextDocument,
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined,
+	getTextDocument: (uri: URI) => TextDocument | undefined
 ) {
 	const { sourceDisplay } = data;
 	if (sourceDisplay) {
@@ -529,7 +529,7 @@ export function getLineText(document: TextDocument, line: number) {
 
 export function convertNavigateToItem(
 	item: ts.NavigateToItem,
-	document: TextDocument,
+	document: TextDocument
 ) {
 	const info: WorkspaceSymbol = {
 		name: getLabel(item),
@@ -614,7 +614,7 @@ export function convertSelectionRange(range: ts.SelectionRange, document: TextDo
 export function convertFileTextChanges(
 	changes: readonly ts.FileTextChanges[],
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined,
+	getTextDocument: (uri: URI) => TextDocument | undefined
 ) {
 	const workspaceEdit: WorkspaceEdit = {};
 	for (const change of changes) {
@@ -658,7 +658,7 @@ export function convertRenameLocations(
 	newText: string,
 	locations: readonly ts.RenameLocation[],
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined,
+	getTextDocument: (uri: URI) => TextDocument | undefined
 ) {
 	const workspaceEdit: WorkspaceEdit = {};
 	for (const location of locations) {
@@ -700,7 +700,7 @@ export function convertQuickInfo(
 		info.documentation ?? [],
 		info.tags,
 		fileNameToUri,
-		getTextDocument,
+		getTextDocument
 	);
 	if (displayString) {
 		parts.push(['```typescript', displayString, '```'].join('\n'));
