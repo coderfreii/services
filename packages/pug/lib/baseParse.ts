@@ -1,5 +1,5 @@
 
-import { buildMappings } from '@volar/source-map/lib/buildMappings';
+import { buildMappings } from './buildMappings';
 import * as pugLex from 'pug-lexer';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { type Segment,toString } from 'muggle-string';
