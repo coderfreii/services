@@ -1,4 +1,3 @@
-// import { forEachEmbeddedCode, type DocumentSelector, type FileChangeType, type FileType, type LanguageServicePlugin, type LanguageServicePluginInstance, type LocationLink, type ProviderResult, type LanguageServiceContext } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, ITextDocument, IWorkspace } from 'vscode-markdown-languageservice';

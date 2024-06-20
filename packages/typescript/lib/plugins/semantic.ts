@@ -114,7 +114,7 @@ export function create(
 			callHierarchyProvider: true,
 			definitionProvider: true,
 			typeDefinitionProvider: true,
-			diagnosticProvider: {},
+			diagnosticProvider: undefined,
 			hoverProvider: true,
 			implementationProvider: true,
 			referencesProvider: true,

@@ -1,7 +1,6 @@
 import type * as html from 'vscode-html-languageservice';
 import type { PugDocument } from '../pugDocument';
 import { transformLocations } from '@volar/language-service/lib/utils/transform';
-// import { transformLocations } from '@volar/language-service';
 
 export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, docContext: html.DocumentContext) => {

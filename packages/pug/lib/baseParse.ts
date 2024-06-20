@@ -1,5 +1,5 @@
-// import { Segment, buildMappings, toString } from '@volar/language-service';
-import { buildMappings  } from '@volar/source-map';
+
+import { buildMappings } from '@volar/source-map/lib/buildMappings';
 import * as pugLex from 'pug-lexer';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { type Segment,toString } from 'muggle-string';
@@ -22,7 +22,7 @@ export function baseParse(pugCode: string) {
 	let ast: Node | undefined;
 
 	try {
-		const tokens = pugLex(pugCode, { filename: fileName });
+		const tokens = pugLex.call(null,pugCode, { filename: fileName });
 
 		emptyLineEnds = collectEmptyLineEnds(tokens);
 		attrsBlocks = collectAttrsBlocks(tokens);

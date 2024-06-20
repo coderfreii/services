@@ -1,4 +1,3 @@
-// import type { FormattingOptions, LanguageServiceContext } from '@volar/language-service';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getConfigTitle } from '../shared';

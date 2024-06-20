@@ -21,7 +21,7 @@ export function create({
 				triggerCharacters: '>+^*()#.[]$@-{}'.split(''),
 			},
 		},
-		create(context, languageService): LanguageServicePluginInstance {
+		create(context): LanguageServicePluginInstance {
 
 			let lastCompletionType: string | undefined;
 
